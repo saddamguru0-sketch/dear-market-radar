@@ -30,7 +30,9 @@ FIN_WORDS = ["market", "share", "stock", "economy", "economic", "rupee", "dollar
              "tax", "budget", "gdp", "inflation", "recession", "invest", "trading", "crash",
              "billion", "crore", "company", "business", "startup", "ipo", "fii", "rbi", "sebi",
              "tariff", "bazaar", "paisa", "paise", "loan", "emi", "salary", "price", "scam",
-             "शेयर", "बाजार", "अर्थव्यवस्था", "पैसा", "निवेश"]
+             "शेयर", "बाजार", "अर्थव्यवस्था", "पैसा", "निवेश",
+             "money", "wealth", "rich", "profit", "earning", "kamai", "kamata", "kamate", "economics",
+             "करोड़", "कमाई", "कमाता", "कमाते", "सोना", "बिजनेस", "व्यापार", "बैंक", "मंदी", "महंगाई", "टैक्स"]
 
 
 def get(endpoint, cost=1, **params):
@@ -133,7 +135,7 @@ def niche_search(cfg, now, errors):
 
 def trending_india(now, errors):
     ids = []
-    for cat in ("25", "27"):  # News & Politics, Education
+    for cat in ("25",):  # News & Politics (Education chart is not available for IN)
         try:
             res = get("videos", part="id", chart="mostPopular", regionCode="IN",
                       videoCategoryId=cat, maxResults=50)
@@ -216,7 +218,8 @@ def main():
     vids = [shape(v, now) for v in fetch_videos(found.keys())]
     keep = [v for v in vids
             if not v["isLive"] and v["durationMin"] >= cfg["minDurationMin"]
-            and v["views"] >= cfg["minViews"] and not bad_title(v["title"], cfg)]
+            and v["views"] >= cfg["minViews"] and not bad_title(v["title"], cfg)
+            and any(w in v["title"].lower() for w in FIN_WORDS)]
     chans = fetch_channels({v["channelId"] for v in keep})
     for v in keep:
         c = chans.get(v["channelId"], {})
