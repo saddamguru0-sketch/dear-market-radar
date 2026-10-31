@@ -1,0 +1,29 @@
+name: Viral Radar
+
+on:
+  schedule:
+    - cron: "30 1 * * *"   # roz 7:00 AM IST
+  workflow_dispatch: {}     # Actions tab se manually bhi chala sakte hain
+
+permissions:
+  contents: write
+
+jobs:
+  radar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Run radar
+        env:
+          YOUTUBE_API_KEY: ${{ secrets.YOUTUBE_API_KEY }}
+        run: python radar.py
+      - name: Save results
+        run: |
+          git config user.name "radar-bot"
+          git config user.email "radar-bot@users.noreply.github.com"
+          git add data reports
+          git diff --cached --quiet || git commit -m "Radar $(date -u +%F)"
+          git push
